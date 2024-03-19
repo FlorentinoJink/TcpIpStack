@@ -1,8 +1,8 @@
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #define CMDBUFLEN 100
 
 int run_cmd(char* cmd, ...);
 
-#endif // UTIL_H_
+#endif // UTILS_H_

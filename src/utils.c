@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "util.h"
+#include "utils.h"
 
 int run_cmd(char* cmd, ...) {
     va_list ap;

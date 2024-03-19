@@ -3,7 +3,7 @@ vpath %.h include
 
 CPPFLAGS = -I include -Wall
 
-objects += main.o util.o
+objects += main.o utils.o tuntap_if.o
 
 lvl-ip: $(objects)
 	$(CC) $(objects) -o build/lvl-ip
