@@ -31,6 +31,6 @@ int main(int argc, char** argv) {
         printf("ERROR when setting default route for if\n");
     }
     read(tun_fd, buf, 100);
-
+    print_hexdump(buf, 100);
     free(dev);
 }
