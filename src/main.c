@@ -10,6 +10,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "basic.h"
+
 #define CMDBUFLEN 100
 
 int run_cmd(char *cmd, ...)
@@ -26,11 +28,22 @@ int run_cmd(char *cmd, ...)
     return system(buf);
 }
 
-int set_route(char *dev, char *cidr)
+// int set_if_route(char *dev, char *cidr)
+// {
+//     return run_cmd("ip route add dev %s %s", dev, cidr);
+// }
+
+int set_if_route(char *dev, char *cidr)
 {
-    return run_cmd("ip route add dev %s %s", dev, cidr);
+    // 假设tun0设备所在的子网的网关是10.0.0.1
+    return run_cmd("ip route add default via 10.0.0.1 dev %s", dev);
 }
 
+int set_if_address(char *dev, char *cidr)
+{
+    return run_cmd("ip address add dev %s local %s", dev, cidr);
+
+}
 int set_if_up(char *dev)
 {
     return run_cmd("ip link set dev %s up", dev);
@@ -49,7 +62,8 @@ int tun_alloc(char *dev)
         exit(1);
     }
 
-    memset(&ifr, 0, sizeof(ifr));
+    CLEAR(ifr);
+    // memset(&ifr, 0, sizeof(ifr));
 
     /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
      *        IFF_TAP   - TAP device
@@ -77,16 +91,21 @@ int main(int argc, char** argv) {
 
     char *dev = calloc(10, 1);
     tun_fd = tun_alloc(dev);
-
+    CLEAR(buf);
     if (set_if_up(dev) != 0) {
         printf("ERROR when setting up if\n");
-            
     }
 
-    if (set_route(dev, "10.0.0.0/24") != 0) {
-        printf("ERROR when setting route for if\n");
-    }
+    if (set_if_address(dev, "10.0.0.5/24") != 0) {
+        printf("ERROR when setting address for if\n");
+    };
 
+    // if (set_if_route(dev, "10.0.0.0/24") != 0) {
+    //     printf("ERROR when setting route for if\n");
+    // }
+    if (set_if_route(dev, "default via 10.0.0.1") != 0) {
+        printf("ERROR when setting default route for if\n");
+    }
     read(tun_fd, buf, 100);
 
     free(dev);
