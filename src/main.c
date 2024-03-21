@@ -7,11 +7,11 @@
 
 #define BUFLEN 100
 
-void hand_frame(struct eth_hdr* hdr) {
+void handle_frame(int tun_fd, struct eth_hdr* hdr) {
     switch (hdr->ethertype)
     {
-    case ETH_P_AARP:
-        arp_incoming(hdr);
+    case ETH_P_ARP:
+        arp_incoming(tun_fd, hdr);
         break;
     case ETH_P_IP:
         printf("Found IPv4\n");
@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
         print_error("ERROR when setting up if\n");
     }
 
-    // if (set_if_address(dev, "10.0.0.5/24") != 0) {
-    //     print_error("ERROR when setting address for if\n");
-    // };
+    if (set_if_address(dev, "10.0.0.5/24") != 0) {
+        print_error("ERROR when setting address for if\n");
+    };
 
     if (set_if_route(dev, "10.0.0.0/24") != 0) {
         printf("ERROR when setting route for if\n");
@@ -46,11 +46,12 @@ int main(int argc, char** argv) {
     // if (set_if_route(dev, "default via 10.0.0.1") != 0) {
     //     print_error("ERROR when setting default route for if\n");
     // }
+    arp_init();
     while (1)
     {
         read(tun_fd, buf, BUFLEN);
         struct eth_hdr* eth_hdr = init_eth_hdr(buf);
-        hand_frame(eth_hdr);
+        handle_frame(tun_fd, eth_hdr);
     }
     free(dev);
 }
