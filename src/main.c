@@ -30,7 +30,10 @@ int main(int argc, char** argv) {
     if (set_if_route(dev, "default via 10.0.0.1") != 0) {
         printf("ERROR when setting default route for if\n");
     }
-    read(tun_fd, buf, 100);
-    print_hexdump(buf, 100);
+    while (1)
+    {
+        read(tun_fd, buf, 100);
+        print_hexdump(buf, 100);
+    }
     free(dev);
 }
