@@ -27,7 +27,6 @@ void handle_frame(struct netdev* netdev, struct eth_hdr* hdr) {
 }
 
 int main(int argc, char** argv) {
-    int tun_fd;
     char buf[BUFLEN];
 
     char *dev = calloc(10, 1);
@@ -35,22 +34,14 @@ int main(int argc, char** argv) {
     struct netdev netdev;
 
     CLEAR(buf);
-    tun_fd = tun_alloc(dev);
+    tun_init(dev);
 
     netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
 
-    if (set_if_route(dev, "10.0.0.0/24") != 0) {
-        printf("ERROR when setting route for if\n");
-    }
-    netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
-
-    // if (set_if_route(dev, "default via 10.0.0.1") != 0) {
-    //     print_error("ERROR when setting default route for if\n");
-    // }
     arp_init();
     while (1)
     {
-        read(tun_fd, buf, BUFLEN);
+        tun_read(buf, BUFLEN);
         struct eth_hdr* eth_hdr = init_eth_hdr(buf);
         handle_frame(&netdev, eth_hdr);
     }
