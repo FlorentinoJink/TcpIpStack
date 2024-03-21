@@ -6,7 +6,7 @@ CPPFLAGS = -I include -Wall
 objects += main.o utils.o tuntap_if.o
 
 lvl-ip: $(objects)
-	$(CC) $(objects) -o build/lvl-ip
+	$(CC) $(objects) -o lvl-ip
 
 clean:
-	rm *.o build/ -rf
+	rm *.o lvl-ip -rf
