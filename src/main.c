@@ -3,8 +3,27 @@
 #include "utils.h"
 #include "tuntap_if.h"
 #include "ethernet.h"
+#include "arp.h"
 
 #define BUFLEN 100
+
+void hand_frame(struct eth_hdr* hdr) {
+    switch (hdr->ethertype)
+    {
+    case ETH_P_AARP:
+        arp_incoming(hdr);
+        break;
+    case ETH_P_IP:
+        printf("Found IPv4\n");
+        break;
+    case ETH_P_IPV6:
+        printf("Found IPv6\n");
+        break;
+    default:
+        printf("Unrecognized ethertype %x\n", hdr->ethertype);
+        break;
+    }
+}
 
 int main(int argc, char** argv) {
     int tun_fd;
@@ -30,8 +49,8 @@ int main(int argc, char** argv) {
     while (1)
     {
         read(tun_fd, buf, BUFLEN);
-        struct eth_hdr* hdr = init_eth_hdr(buf);
-        print_eth_hdr(hdr);
+        struct eth_hdr* eth_hdr = init_eth_hdr(buf);
+        hand_frame(eth_hdr);
     }
     free(dev);
 }
