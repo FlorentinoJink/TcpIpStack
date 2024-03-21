@@ -2,8 +2,9 @@
 #include "basic.h"
 #include "utils.h"
 #include "tuntap_if.h"
+#include "ethernet.h"
 
-#define BUFLEN 1024
+#define BUFLEN 100
 
 int main(int argc, char** argv) {
     int tun_fd;
@@ -28,9 +29,9 @@ int main(int argc, char** argv) {
     // }
     while (1)
     {
-        int size = read(tun_fd, buf, BUFLEN);
-        printf("Return size:%d\n", size);
-        print_hexdump(buf, size);
+        read(tun_fd, buf, BUFLEN);
+        struct eth_hdr* hdr = init_eth_hdr(buf);
+        print_eth_hdr(hdr);
     }
     free(dev);
 }

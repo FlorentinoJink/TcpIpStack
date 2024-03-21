@@ -12,5 +12,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 #endif // SYS_HEAD_H_
