@@ -37,7 +37,7 @@ int tun_alloc(char *dev)
     int fd, err;
 
     if( (fd = open("/dev/net/tun", O_RDWR)) < 0 ) {
-        printf("Cannot open TUN/TAP dev");
+        print_error("Cannot open TUN/TAP dev");
         exit(1);
     }
 
@@ -55,7 +55,7 @@ int tun_alloc(char *dev)
     }
 
     if( (err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ){
-        printf("ERR: Could not ioctl tun: %s\n", strerror(errno));
+        print_error("ERR: Could not ioctl tun: %s\n", strerror(errno));
         close(fd);
         return err;
     }
