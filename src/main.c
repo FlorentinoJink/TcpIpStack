@@ -1,11 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
+#include "syshead.h"
 #include "basic.h"
-
 #include "utils.h"
 #include "tuntap_if.h"
 
@@ -26,12 +20,12 @@ int main(int argc, char** argv) {
     //     print_error("ERROR when setting address for if\n");
     // };
 
-    // if (set_if_route(dev, "10.0.0.0/24") != 0) {
-    //     printf("ERROR when setting route for if\n");
-    // }
-    if (set_if_route(dev, "default via 10.0.0.1") != 0) {
-        print_error("ERROR when setting default route for if\n");
+    if (set_if_route(dev, "10.0.0.0/24") != 0) {
+        printf("ERROR when setting route for if\n");
     }
+    // if (set_if_route(dev, "default via 10.0.0.1") != 0) {
+    //     print_error("ERROR when setting default route for if\n");
+    // }
     while (1)
     {
         int size = read(tun_fd, buf, BUFLEN);

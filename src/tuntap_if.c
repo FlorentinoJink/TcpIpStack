@@ -1,21 +1,13 @@
-#include <sys/socket.h>
-#include <linux/if.h>
-#include <linux/if_tun.h>
-#include <sys/ioctl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
+#include "syshead.h"
 #include "utils.h"
 #include "tuntap_if.h"
 #include "basic.h"
 
 int set_if_route(char *dev, char *cidr)
 {
-    // 假设tun0设备所在的子网的网关是10.0.0.1
-    return run_cmd("ip route add default via 10.0.0.1 dev %s", dev);
+    // // 假设tun0设备所在的子网的网关是10.0.0.1
+    // return run_cmd("ip route add default via 10.0.0.1 dev %s", dev);
+    return run_cmd("ip route add dev %s %s", dev, cidr);
 }
 
 int set_if_address(char *dev, char *cidr)

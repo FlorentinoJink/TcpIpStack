@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <errno.h>
-
+#include "syshead.h"
 #include "utils.h"
 
 int run_cmd(char* cmd, ...) 
