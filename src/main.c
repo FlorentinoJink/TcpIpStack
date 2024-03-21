@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv) {
     int tun_fd;
-    char buf[100];
+    char buf[1024];
 
     char *dev = calloc(10, 1);
     tun_fd = tun_alloc(dev);
@@ -32,8 +32,9 @@ int main(int argc, char** argv) {
     }
     while (1)
     {
-        read(tun_fd, buf, 100);
-        print_hexdump(buf, 100);
+        int size = read(tun_fd, buf, 1024);
+        printf("Return size:%d\n", size);
+        print_hexdump(buf, size);
     }
     free(dev);
 }
