@@ -1,4 +1,5 @@
 #include "arp.h"
+#include "netdev.h"
 
 static struct arp_cache_entry arp_cache[ARP_CACHE_LEN];
 
@@ -6,37 +7,32 @@ void arp_init(){
     memset(arp_cache, 0, ARP_CACHE_LEN * sizeof(struct arp_cache_entry));
 }
 
-void arp_incoming(int tun_fd, struct eth_hdr* hdr) {
-    // printf("Found ARP\n");
-    struct arp_hdr* arp_header;
-    struct arp_ipv4* arp_payload;
+void arp_incoming(struct netdev* netdev, struct eth_hdr* hdr) {
+    struct arp_hdr *arphdr;
+    struct arp_ipv4 *arp_payload;
     int merge_flag = 0;
 
-    arp_header = (struct arp_hdr*) hdr->payload;
-    arp_header->hw_type = htons(arp_header->hw_type);
-    arp_header->pro_type = htons(arp_header->pro_type);
-    arp_header->opcode = htons(arp_header->opcode);
+    arphdr = (struct arp_hdr *) hdr->payload;
 
-    if (arp_header->hw_type != ARP_ETHERNET)
-    {
+    arphdr->hw_type = htons(arphdr->hw_type);
+    arphdr->pro_type = htons(arphdr->pro_type);
+    arphdr->opcode = htons(arphdr->opcode);
+
+    if (arphdr->hw_type != ARP_ETHERNET) {
         printf("Unsupported HW type\n");
         return;
     }
-    if (arp_header->pro_type != ARP_IPV4)
-    {
+
+    if (arphdr->pro_type != ARP_IPV4) {
         printf("Unsupported protocol\n");
         return;
     }
-    
-    arp_payload = (struct arp_ipv4*) arp_header->payload;
-    
-    // if (arp_header->opcode == ARP_REQUEST)
-    // {
-    //     printf("Detected ARP request\n");
-    // }
-    update_arp_translation_table(arp_header, arp_payload);
-    switch (arp_header->opcode)
-    {
+
+    arp_payload = (struct arp_ipv4 *) arphdr->payload;
+
+    update_arp_translation_table(arphdr, arp_payload);
+
+    switch (arphdr->opcode) {
     case ARP_REQUEST:
         break;
     default:

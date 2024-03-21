@@ -4,14 +4,15 @@
 #include "tuntap_if.h"
 #include "ethernet.h"
 #include "arp.h"
+#include "netdev.h"
 
 #define BUFLEN 100
 
-void handle_frame(int tun_fd, struct eth_hdr* hdr) {
+void handle_frame(struct netdev* netdev, struct eth_hdr* hdr) {
     switch (hdr->ethertype)
     {
     case ETH_P_ARP:
-        arp_incoming(tun_fd, hdr);
+        arp_incoming(netdev, hdr);
         break;
     case ETH_P_IP:
         printf("Found IPv4\n");
@@ -30,19 +31,19 @@ int main(int argc, char** argv) {
     char buf[BUFLEN];
 
     char *dev = calloc(10, 1);
-    tun_fd = tun_alloc(dev);
-    CLEAR(buf);
-    if (set_if_up(dev) != 0) {
-        print_error("ERROR when setting up if\n");
-    }
+    
+    struct netdev netdev;
 
-    if (set_if_address(dev, "10.0.0.5/24") != 0) {
-        print_error("ERROR when setting address for if\n");
-    };
+    CLEAR(buf);
+    tun_fd = tun_alloc(dev);
+
+    netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
 
     if (set_if_route(dev, "10.0.0.0/24") != 0) {
         printf("ERROR when setting route for if\n");
     }
+    netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
+
     // if (set_if_route(dev, "default via 10.0.0.1") != 0) {
     //     print_error("ERROR when setting default route for if\n");
     // }
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     {
         read(tun_fd, buf, BUFLEN);
         struct eth_hdr* eth_hdr = init_eth_hdr(buf);
-        handle_frame(tun_fd, eth_hdr);
+        handle_frame(&netdev, eth_hdr);
     }
     free(dev);
 }
