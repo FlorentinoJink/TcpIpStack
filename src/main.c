@@ -9,9 +9,11 @@
 #include "utils.h"
 #include "tuntap_if.h"
 
+#define BUFLEN 1024
+
 int main(int argc, char** argv) {
     int tun_fd;
-    char buf[1024];
+    char buf[BUFLEN];
 
     char *dev = calloc(10, 1);
     tun_fd = tun_alloc(dev);
@@ -20,9 +22,9 @@ int main(int argc, char** argv) {
         print_error("ERROR when setting up if\n");
     }
 
-    if (set_if_address(dev, "10.0.0.5/24") != 0) {
-        print_error("ERROR when setting address for if\n");
-    };
+    // if (set_if_address(dev, "10.0.0.5/24") != 0) {
+    //     print_error("ERROR when setting address for if\n");
+    // };
 
     // if (set_if_route(dev, "10.0.0.0/24") != 0) {
     //     printf("ERROR when setting route for if\n");
@@ -32,7 +34,7 @@ int main(int argc, char** argv) {
     }
     while (1)
     {
-        int size = read(tun_fd, buf, 1024);
+        int size = read(tun_fd, buf, BUFLEN);
         printf("Return size:%d\n", size);
         print_hexdump(buf, size);
     }
