@@ -28,7 +28,7 @@ void netdev_transmit(struct netdev* dev, struct eth_hdr* hdr, uint16_t ethertype
     memcpy(hdr->smac, dev->hwaddr, 6);
     memcpy(hdr->dmac, dst, 6);
 
-    len += size_of(struct eth_hdr);
+    len += sizeof(struct eth_hdr);
 
     tun_write((char*)hdr, len);
 }
