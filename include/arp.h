@@ -14,7 +14,6 @@
 #define ARE_WAITING     1
 #define ARP_RESOLVED    2
 
-
 struct arp_hdr
 {
     uint16_t hw_type;
@@ -23,7 +22,7 @@ struct arp_hdr
     unsigned char pro_size;
     uint16_t opcode;
     unsigned char data[];
-};
+}__attribute__((packed));
 
 struct arp_ipv4
 {
@@ -31,7 +30,7 @@ struct arp_ipv4
     unsigned char src_addr[4];
     unsigned char dest_mac[6];
     unsigned char dest_addr[4];
-};
+}__attribute__((packed));
 
 struct arp_cache_entry 
 {
