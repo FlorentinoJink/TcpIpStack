@@ -15,9 +15,9 @@ static int insert_arp_translation_table(struct arp_hdr *hdr, struct arp_ipv4 *da
         entry = &arp_cache[i];
         if (entry->state == ARP_FREE)
         {
-            memcpy(&entry->hw_type, &hdr->hw_type, sizeof(hdr->hw_type));
-            memcpy(entry->src_addr, data->src_addr, sizeof(data->src_addr));
-            memcpy(entry->src_mac, data->src_mac, sizeof(data->src_mac));
+            entry->hwtype = hdr->hwtype;
+            entry->sip = data->sip;
+            memcpy(entry->smac, data->smac, sizeof(data->smac));
             return 0;
         }
     }
@@ -33,8 +33,8 @@ static int update_arp_translation_table(struct arp_hdr *hdr, struct arp_ipv4 *da
 
         if (entry->state == ARP_FREE) continue;
 
-        if (entry->hw_type == hdr->hw_type && entry->src_addr == data->src_addr) {
-            memcpy(entry->src_mac, data->src_mac, 6);
+        if (entry->hwtype == hdr->hwtype && entry->sip == data->sip) {
+            memcpy(entry->smac, data->smac, 6);
             return 1;
         }
     }
@@ -49,39 +49,37 @@ void arp_init(){
 void arp_incoming(struct netdev* netdev, struct eth_hdr* hdr) {
     struct arp_hdr *arphdr;
     struct arp_ipv4 *arpdata;
-    int merge_flag = 0;
+    int merge = 0;
 
     arphdr = (struct arp_hdr *) hdr->payload;
+    // 网络字节序 转为主机字节序
+    arphdr->hwtype = ntohs(arphdr->hwtype);
+    arphdr->protype = ntohs(arphdr->protype);
+    arphdr->opcode = ntohs(arphdr->opcode);
 
-    arphdr->hw_type = htons(arphdr->hw_type);
-    arphdr->pro_type = htons(arphdr->pro_type);
-    arphdr->opcode = htons(arphdr->opcode);
-
-    if (arphdr->hw_type != ARP_ETHERNET) {
+    if (arphdr->hwtype != ARP_ETHERNET) {
         printf("Unsupported HW type\n");
         return;
     }
 
-    if (arphdr->pro_type != ARP_IPV4) {
+    if (arphdr->protype != ARP_IPV4) {
         printf("Unsupported protocol\n");
         return;
     }
 
     arpdata = (struct arp_ipv4 *) arphdr->data;
 
-    merge_flag = update_arp_translation_table(arphdr, arpdata);
+    merge = update_arp_translation_table(arphdr, arpdata);
 
-    if (!memcmp(&netdev->addr, arpdata->dest_addr,4))
+    if (netdev->addr != arpdata->dip)     
     {
         printf("ARP was not for us\n");
     }
 
-    if (!merge_flag && insert_arp_translation_table(arphdr, arpdata) != 0)
+    if (!merge && insert_arp_translation_table(arphdr, arpdata) != 0) 
     {
         perror("ERR: No free space in ARP translation table\n");
     }
-    
-    
 
     switch (arphdr->opcode) {
     case ARP_REQUEST:

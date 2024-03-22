@@ -42,8 +42,8 @@ int main(int argc, char** argv) {
     while (1)
     {
         tun_read(buf, BUFLEN);
-        struct eth_hdr* eth_hdr = init_eth_hdr(buf);
-        handle_frame(&netdev, eth_hdr);
+        struct eth_hdr* hdr = init_eth_hdr(buf);
+        handle_frame(&netdev, hdr);
     }
     free(dev);
 }

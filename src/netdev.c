@@ -1,6 +1,8 @@
 #include "netdev.h"
 #include "syshead.h"
 #include "basic.h"
+#include "ethernet.h"
+#include "tuntap_if.h"
 
 void netdev_init(struct netdev* dev, char* addr, char* hwaddr)
 {
@@ -18,4 +20,15 @@ void netdev_init(struct netdev* dev, char* addr, char* hwaddr)
                                                 &dev->hwaddr[4],
                                                 &dev->hwaddr[5]);
     printf("ipaddr: %s hwaddr: %s\n", addr, hwaddr);
+}
+
+void netdev_transmit(struct netdev* dev, struct eth_hdr* hdr, uint16_t ethertype, int len, unsigned char* dst){
+    hdr->ethertype = htons(ethertype);
+
+    memcpy(hdr->smac, dev->hwaddr, 6);
+    memcpy(hdr->dmac, dst, 6);
+
+    len += size_of(struct eth_hdr);
+
+    tun_write((char*)hdr, len);
 }
