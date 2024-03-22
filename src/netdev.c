@@ -11,11 +11,11 @@ void netdev_init(struct netdev* dev, char* addr, char* hwaddr)
         perror("ERR: Parsing inet addr failed\n");
         exit(1);
     }
-    sscanf(hwaddr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &dev->hw_addr[0],
-                                                &dev->hw_addr[1],
-                                                &dev->hw_addr[2],
-                                                &dev->hw_addr[3],
-                                                &dev->hw_addr[4],
-                                                &dev->hw_addr[5]);
+    sscanf(hwaddr, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &dev->hwaddr[0],
+                                                &dev->hwaddr[1],
+                                                &dev->hwaddr[2],
+                                                &dev->hwaddr[3],
+                                                &dev->hwaddr[4],
+                                                &dev->hwaddr[5]);
     printf("ipaddr: %s hwaddr: %s\n", addr, hwaddr);
 }
