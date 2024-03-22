@@ -5,17 +5,17 @@
 
 static int tun_fd;
 
-int set_if_route(char *dev, char *cidr)
+static int set_if_route(char *dev, char *cidr)
 {
     // // 假设tun0设备所在的子网的网关是10.0.0.1
     // return run_cmd("ip route add default via 10.0.0.1 dev %s", dev);
     return run_cmd("ip route add dev %s %s", dev, cidr);
 }
 
-// int set_if_address(char *dev, char *cidr)
-// {
-//     return run_cmd("ip address add dev %s local %s", dev, cidr);
-// }
+static int set_if_address(char *dev, char *cidr)
+{
+    return run_cmd("ip address add dev %s local %s", dev, cidr);
+}
 
 static int set_if_up(char *dev)
 {
@@ -70,7 +70,9 @@ void tun_init(char* dev)
     {
         print_error("ERROR when setting route for if\n");
     }
-    
+    if (set_if_address(dev, "10.0.0.4/24") != 0) {
+        print_error("ERROR when setting addr for if\n");
+    }
 }
 
 int tun_read(char* buf, int len)

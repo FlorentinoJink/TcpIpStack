@@ -17,7 +17,7 @@ static int insert_arp_translation_table(struct arp_hdr *hdr, struct arp_ipv4 *da
         {
             entry->hwtype = hdr->hwtype;
             entry->sip = data->sip;
-            memcpy(entry->smac, data->smac, sizeof(data->smac));
+            memcpy(entry->smac, data->smac, sizeof(entry->smac));
             return 0;
         }
     }
@@ -83,9 +83,32 @@ void arp_incoming(struct netdev* netdev, struct eth_hdr* hdr) {
 
     switch (arphdr->opcode) {
     case ARP_REQUEST:
+        arp_reply(netdev, hdr, arphdr);
         break;
     default:
         printf("Opcode not supported\n");
         break;
     }
+}
+
+void arp_reply(struct netdev* netdev, struct eth_hdr* hdr, struct arp_hdr* arphdr)
+{
+    struct arp_ipv4 *arpdata;
+    int len;
+
+    arpdata = (struct arp_ipv4 *) arphdr->data;
+
+    memcpy(arpdata->dmac, arpdata->smac, 6);
+    arpdata->dip = arpdata->sip;
+    memcpy(arpdata->smac, netdev->hwaddr, 6);
+    arpdata->sip = netdev->addr;
+
+    arphdr->opcode = ARP_REPLY;
+
+    arphdr->opcode = htons(arphdr->opcode);
+    arphdr->hwtype = htons(arphdr->hwtype);
+    arphdr->protype = htons(arphdr->protype);
+
+    len = sizeof(struct arp_hdr) + sizeof(struct arp_ipv4);
+    netdev_transmit(netdev, hdr, ETH_P_ARP, len, arpdata->dmac);
 }

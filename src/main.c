@@ -12,13 +12,14 @@ void handle_frame(struct netdev* netdev, struct eth_hdr* hdr) {
     switch (hdr->ethertype)
     {
     case ETH_P_ARP:
+        printf("Found ARP\n");
         arp_incoming(netdev, hdr);
         break;
     case ETH_P_IP:
-        printf("Found IPv4\n");
+        // printf("Found IPv4\n");
         break;
     case ETH_P_IPV6:
-        printf("Found IPv6\n");
+        // printf("Found IPv6\n");
         break;
     default:
         printf("Unrecognized ethertype %x\n", hdr->ethertype);

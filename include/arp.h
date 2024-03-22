@@ -6,6 +6,7 @@
 #include "netdev.h"
 
 #define ARP_ETHERNET    0x0001
+#define ARP_REPLY       0x0002
 #define ARP_IPV4        0x0800
 #define ARP_REQUEST     0x0001
 
@@ -42,5 +43,6 @@ struct arp_cache_entry
 
 void arp_init();
 void arp_incoming(struct netdev* netdev, struct eth_hdr* hdr);
+void arp_reply(struct netdev* netdev, struct eth_hdr* hdr, struct arp_hdr* arphdr);
 
 #endif // ARP_H_
