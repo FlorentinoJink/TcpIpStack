@@ -5,6 +5,7 @@
 #include "ethernet.h"
 #include "arp.h"
 #include "netdev.h"
+#include "ipv4.h"
 
 #define BUFLEN 100
 
@@ -17,6 +18,7 @@ void handle_frame(struct netdev* netdev, struct eth_hdr* hdr) {
         break;
     case ETH_P_IP:
         // printf("Found IPv4\n");
+        ipv4_incoming(netdev, hdr);
         break;
     case ETH_P_IPV6:
         // printf("Found IPv6\n");
