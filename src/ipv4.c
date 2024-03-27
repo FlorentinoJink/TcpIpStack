@@ -1,5 +1,6 @@
 #include "ipv4.h"
 #include "netdev.h"
+#include "icmpv4.h"
 
 void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
 {
@@ -30,4 +31,14 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
     }
 
     //TODO: Check fragmentation, possibly reassemble
+
+    switch (iphdr->proto)
+    {
+    case ICMPV4:
+        icmpv4_incoming(netdev, hdr);
+        break;
+    default:
+        perror("Unknown IP header proto\n");
+        break;
+    }
 }
