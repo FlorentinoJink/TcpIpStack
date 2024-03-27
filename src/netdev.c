@@ -22,12 +22,14 @@ void netdev_init(struct netdev* dev, char* addr, char* hwaddr)
     printf("ipaddr: %s hwaddr: %s\n", addr, hwaddr);
 }
 
-void netdev_transmit(struct netdev* dev, struct eth_hdr* hdr, uint16_t ethertype, int len, unsigned char* dst){
+void netdev_transmit(struct netdev* dev, struct eth_hdr* hdr, uint16_t ethertype, int len, uint8_t* dst){
+    uint8_t dst_mac[6];
+    memcpy(dst_mac, dst, 6);
     hdr->ethertype = htons(ethertype);
 
     memcpy(hdr->smac, dev->hwaddr, 6);
-    memcpy(hdr->dmac, dst, 6);
-
+    memcpy(hdr->dmac, dst_mac, 6);
+    
     len += sizeof(struct eth_hdr);
 
     tun_write((char*)hdr, len);
