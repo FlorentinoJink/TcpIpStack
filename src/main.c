@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     CLEAR(buf);
     tun_init(dev);
 
-    netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
+    netdev_init(&netdev, "10.0.0.5", "00:0c:29:6d:50:25");
 
     arp_init();
     while (1)
