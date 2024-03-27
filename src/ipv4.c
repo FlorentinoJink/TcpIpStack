@@ -1,4 +1,5 @@
 #include "ipv4.h"
+#include "arp.h"
 #include "netdev.h"
 #include "icmpv4.h"
 
@@ -15,8 +16,6 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
     iphdr->id = ntohs(iphdr->id);
     iphdr->flags = ntohs(iphdr->flags);
     iphdr->csum = ntohs(iphdr->csum);
-    iphdr->saddr = ntohs(iphdr->saddr);
-    iphdr->daddr = ntohs(iphdr->daddr);
     // printf("%d\n", iphdr->tot_len);
     if (iphdr->ihl < 5)
     {
@@ -41,4 +40,28 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
         perror("Unknown IP header proto\n");
         break;
     }
+}
+
+void ipv4_outgoing(struct netdev *netdev, struct eth_hdr *hdr)
+{
+    struct iphdr *iphdr = (struct iphdr *)hdr->payload;
+    uint32_t tmpaddr;
+    uint8_t len = iphdr->len;
+
+    /* Just swap the source and destination IP addresses,
+     * don't bother with ARP lookup just now
+     */
+    tmpaddr = iphdr->saddr;
+    iphdr->daddr = tmpaddr;
+    iphdr->saddr = netdev->addr;
+
+    /*
+     * Switch back the necessary fields to Network Byte Order
+     */
+    iphdr->len = htons(iphdr->len);
+    iphdr->id = ntohs(iphdr->id);
+    iphdr->flags = ntohs(iphdr->flags);
+    iphdr->csum = ntohs(iphdr->csum);
+
+    netdev_transmit(netdev, hdr, ETH_P_IP, len, hdr->smac);
 }
