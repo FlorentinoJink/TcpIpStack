@@ -39,13 +39,20 @@ int main(int argc, char** argv) {
     CLEAR(buf);
     tun_init(dev);
 
-    netdev_init(&netdev, "10.0.0.5", "00:0c:29:6d:50:25");
+    netdev_init(&netdev, "10.0.0.4", "00:0c:29:6d:50:25");
 
     arp_init();
     while (1)
     {
-        tun_read(buf, BUFLEN);
-        struct eth_hdr* hdr = init_eth_hdr(buf);
+        if (tun_read(buf, BUFLEN) < 0) {
+            print_error("ERR: Read from tun_fd: %s\n", strerror(errno));
+            return 1;
+        }
+
+        // print_hexdump(buf, BUFLEN);
+
+        struct eth_hdr *hdr = init_eth_hdr(buf);
+
         handle_frame(&netdev, hdr);
     }
     free(dev);
