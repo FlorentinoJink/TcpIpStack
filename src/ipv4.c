@@ -9,6 +9,15 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
     struct iphdr* iphdr = (struct iphdr*)hdr->payload;
     uint16_t csum = -1;
 
+    // char str_ip[INET_ADDRSTRLEN]; // INET_ADDRSTRLEN定义了一个IPv4地址所需的最大字符串长度
+
+    // // 使用inet_ntop函数进行转换
+    // if (inet_ntop(AF_INET, &iphdr->saddr, str_ip, sizeof(str_ip)) == NULL) {
+    //     perror("inet_ntop failed"); // 如果转换失败，输出错误信息
+    // } else {
+    //     printf("The string representation of the IP address is: %s\n", str_ip);
+    // }
+
     if (iphdr->version != IPV4)
     {
         perror("Datagram version was not Ipv4\n");
@@ -31,6 +40,7 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
     
     if (csum != 0)
     {
+        printf("Checksum failed\n");
         // Invalid checksum drop packet handing
         return;
     }
@@ -40,10 +50,11 @@ void ipv4_incoming(struct netdev* netdev, struct eth_hdr* hdr)
 
     switch (iphdr->proto) {
     case ICMPV4:
+        printf("icmpv4_incoming: succeed.");
         icmpv4_incoming(netdev, hdr);
         break;
     default:
-        perror("Unknown IP header proto\n");
+        // perror("Unknown IP header proto\n");
         return;
     }
 }
@@ -60,7 +71,7 @@ void ipv4_outgoing(struct netdev *netdev, struct eth_hdr *hdr)
      */
     tmpaddr = iphdr->saddr;
     iphdr->daddr = tmpaddr;
-    iphdr->saddr = netdev->addr;
+    iphdr->saddr = netdev->addr; 
 
     /*
      * Switch back the necessary fields to Network Byte Order
